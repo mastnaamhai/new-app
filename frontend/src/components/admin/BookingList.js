@@ -1,50 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Form } from 'react-bootstrap';
 import api from '../../services/api';
+import GenerateLrModal from './GenerateLrModal';
 
 const BookingList = () => {
   const [bookings, setBookings] = useState([]);
+  const [showLrModal, setShowLrModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+
+  const fetchBookings = async () => {
+    const res = await api.get('/bookings');
+    setBookings(res.data);
+  };
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      const res = await api.get('/bookings');
-      setBookings(res.data);
-    };
     fetchBookings();
   }, []);
 
   const handleStatusChange = async (id, status) => {
     await api.put(`/bookings/${id}`, { status });
-    const res = await api.get('/bookings');
-    setBookings(res.data);
+    fetchBookings(); // Refresh the list
   };
 
-  const handleGenerateLr = async (bookingId) => {
-    try {
-      const vehicleNumber = prompt('Enter Vehicle Number:');
-      const driverName = prompt('Enter Driver Name:');
-      const freightCharges = prompt('Enter Freight Charges:');
+  const handleOpenLrModal = (booking) => {
+    setSelectedBooking(booking);
+    setShowLrModal(true);
+  };
 
-      if (!vehicleNumber || !driverName || !freightCharges) {
-        return alert('All fields are required for LR generation.');
-      }
-
-      const res = await api.post('/lr', {
-        bookingId,
-        vehicleNumber,
-        driverName,
-        freightCharges: parseFloat(freightCharges),
-      });
-      alert(`LR generated successfully! LR Number: ${res.data.lrNumber}`);
-      // Refresh bookings to show updated status
-      const bookingsRes = await api.get('/bookings');
-      setBookings(bookingsRes.data);
-    } catch (err) {
-      alert(`Error generating LR: ${err.response?.data?.msg || err.message}`);
-    }
+  const handleCloseLrModal = () => {
+    setShowLrModal(false);
+    setSelectedBooking(null);
   };
 
   const handleGenerateInvoice = async (bookingId) => {
+    // This part can be converted to a modal later if needed
     try {
       const billingName = prompt('Enter Billing Name:');
       const billingAddress = prompt('Enter Billing Address:');
@@ -62,13 +51,14 @@ const BookingList = () => {
         totalAmount: parseFloat(totalAmount),
       });
       alert(`Invoice generated successfully! Invoice Number: ${res.data.invoiceNumber}`);
+      fetchBookings();
     } catch (err) {
       alert(`Error generating invoice: ${err.response?.data?.msg || err.message}`);
     }
   };
 
   return (
-    <div>
+    <>
       <h2>Bookings</h2>
       <Table striped bordered hover responsive>
         <thead>
@@ -103,11 +93,11 @@ const BookingList = () => {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => handleGenerateLr(booking._id)}
-                  disabled={booking.status !== 'Confirmed'}
+                  onClick={() => handleOpenLrModal(booking)}
+                  disabled={booking.consignmentNoteGenerated || booking.status !== 'Confirmed'}
                   className="me-2"
                 >
-                  Generate LR
+                  {booking.consignmentNoteGenerated ? 'LR Generated' : 'Generate LR'}
                 </Button>
                 <Button
                   variant="primary"
@@ -122,7 +112,13 @@ const BookingList = () => {
           ))}
         </tbody>
       </Table>
-    </div>
+      <GenerateLrModal
+        show={showLrModal}
+        handleClose={handleCloseLrModal}
+        booking={selectedBooking}
+        onLrGenerated={fetchBookings}
+      />
+    </>
   );
 };
 

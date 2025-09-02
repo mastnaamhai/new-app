@@ -12,16 +12,36 @@ const generateLrNumber = async () => {
 };
 
 exports.createLorryReceipt = async (req, res) => {
-  const { bookingId, vehicleNumber, driverName, freightCharges } = req.body;
+  const {
+    bookingId,
+    vehicleNumber,
+    driverName,
+    eWayBillNumber,
+    goodsDetails,
+    freightPaymentTerm,
+    gstOnFreight,
+  } = req.body;
 
-  if (!bookingId || !vehicleNumber || !driverName || !freightCharges) {
-    return res.status(400).json({ msg: 'Please provide all required details for the LR.' });
+  // Basic validation
+  if (
+    !bookingId ||
+    !vehicleNumber ||
+    !driverName ||
+    !goodsDetails ||
+    !freightPaymentTerm ||
+    !gstOnFreight
+  ) {
+    return res.status(400).json({ msg: 'Please provide all required LR details.' });
   }
 
   try {
     const booking = await Booking.findById(bookingId);
     if (!booking) {
       return res.status(404).json({ msg: 'Booking not found' });
+    }
+
+    if (booking.consignmentNoteGenerated) {
+      return res.status(400).json({ msg: 'LR already generated for this booking.' });
     }
 
     const lrNumber = await generateLrNumber();
@@ -31,13 +51,19 @@ exports.createLorryReceipt = async (req, res) => {
       lrNumber,
       vehicleNumber,
       driverName,
-      freightCharges,
+      consignorGstin: booking.sender.gstin, // Get GSTIN from booking
+      consigneeGstin: booking.receiver.gstin, // Get GSTIN from booking
+      eWayBillNumber,
+      goodsDetails,
+      freightPaymentTerm,
+      gstOnFreight,
     });
 
     const lr = await newLr.save();
 
-    // Optionally, update the booking status
-    booking.status = 'In Transit';
+    // Update booking status and mark LR as generated
+    booking.status = 'dispatched';
+    booking.consignmentNoteGenerated = true;
     await booking.save();
 
     res.status(201).json(lr);
