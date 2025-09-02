@@ -7,6 +7,12 @@ exports.register = async (req, res) => {
   const { username, password } = req.body;
 
   try {
+    // Check if an admin user already exists
+    const adminCount = await User.countDocuments();
+    if (adminCount > 0) {
+      return res.status(403).json({ msg: 'Registration is not allowed. An admin already exists.' });
+    }
+
     let user = await User.findOne({ username });
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });

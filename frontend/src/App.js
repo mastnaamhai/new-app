@@ -21,7 +21,7 @@ function App() {
             <Route path="/book" element={<BookingPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/admin" element={<PrivateRoute />}>
+            <Route element={<PrivateRoute />}>
               <Route path="/admin" element={<AdminPage />} />
             </Route>
           </Routes>
