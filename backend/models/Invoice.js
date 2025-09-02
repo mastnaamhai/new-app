@@ -35,6 +35,15 @@ const InvoiceSchema = new mongoose.Schema({
     enum: ['Paid', 'Unpaid'],
     default: 'Unpaid',
   },
+  paymentDate: {
+    type: Date,
+  },
+  paymentMode: {
+    type: String,
+  },
+  paymentNotes: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model('Invoice', InvoiceSchema);
