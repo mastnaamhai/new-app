@@ -1,6 +1,16 @@
 const Invoice = require('../models/Invoice');
 const Booking = require('../models/Booking');
 
+exports.getInvoices = async (req, res) => {
+  try {
+    const invoices = await Invoice.find().sort({ date: -1 });
+    res.json(invoices);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
 // A simple function to generate a unique invoice number
 const generateInvoiceNumber = async () => {
   const lastInvoice = await Invoice.findOne().sort({ date: -1 });

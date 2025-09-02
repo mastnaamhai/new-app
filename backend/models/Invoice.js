@@ -27,6 +27,14 @@ const InvoiceSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  dueDate: {
+    type: Date,
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['Paid', 'Unpaid'],
+    default: 'Unpaid',
+  },
 });
 
 module.exports = mongoose.model('Invoice', InvoiceSchema);

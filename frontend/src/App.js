@@ -6,6 +6,7 @@ import BookingPage from './pages/BookingPage';
 import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
+import InvoiceViewPage from './pages/InvoiceViewPage';
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './context/AuthContext';
 import { Container } from 'react-bootstrap';
@@ -23,6 +24,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route element={<PrivateRoute />}>
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/invoice/:id" element={<InvoiceViewPage />} />
             </Route>
           </Routes>
         </Container>
