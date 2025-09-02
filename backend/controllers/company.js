@@ -37,6 +37,9 @@ exports.uploadLogo = async (req, res) => {
       return res.status(400).json({ msg: 'Please upload a file' });
     }
 
+    // The file validation is handled by multer's fileFilter.
+    // If an invalid file is uploaded, the error will be caught by the error handling middleware.
+
     const logo = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
 
     let info = await CompanyInfo.findOne();

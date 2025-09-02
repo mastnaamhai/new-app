@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookings');
 const auth = require('../middleware/auth');
+const { validateBooking } = require('../middleware/validation');
 
 // @route   POST api/bookings
 // @desc    Create a new booking
 // @access  Public
-router.post('/', bookingController.createBooking);
+router.post('/', validateBooking, bookingController.createBooking);
 
 // @route   GET api/bookings
 // @desc    Get all bookings

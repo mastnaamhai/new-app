@@ -13,7 +13,7 @@ exports.createBooking = async (req, res) => {
 
 exports.getBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find().sort({ date: -1 });
+    const bookings = await Booking.find().sort({ date: -1 }).populate('lorryReceipt');
     res.json(bookings);
   } catch (err) {
     console.error(err.message);

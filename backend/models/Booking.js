@@ -38,4 +38,12 @@ const BookingSchema = new mongoose.Schema({
   consignmentNoteGenerated: { type: Boolean, default: false },
 });
 
+// Virtual for lorry receipts
+BookingSchema.virtual('lorryReceipt', {
+  ref: 'LorryReceipt',
+  localField: '_id',
+  foreignField: 'booking',
+  justOne: true,
+});
+
 module.exports = mongoose.model('Booking', BookingSchema);
