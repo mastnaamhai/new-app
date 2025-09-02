@@ -1,8 +1,8 @@
 import React from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
-import BookingList from '../../components/admin/BookingList';
-import CompanySettings from '../../components/admin/CompanySettings';
-import InvoiceList from '../../components/admin/InvoiceList';
+import BookingList from '../components/admin/BookingList';
+import CompanySettings from '../components/admin/CompanySettings';
+import InvoiceList from '../components/admin/InvoiceList';
 
 const AdminPage = () => {
   return (

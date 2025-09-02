@@ -11,6 +11,49 @@ exports.getInvoices = async (req, res) => {
   }
 };
 
+exports.markAsPaid = async (req, res) => {
+  const { paymentDate, paymentMode, paymentNotes } = req.body;
+
+  try {
+    const invoice = await Invoice.findById(req.params.id);
+    if (!invoice) {
+      return res.status(404).json({ msg: 'Invoice not found' });
+    }
+
+    invoice.paymentStatus = 'Paid';
+    invoice.paymentDate = paymentDate || new Date();
+    invoice.paymentMode = paymentMode;
+    invoice.paymentNotes = paymentNotes;
+
+    await invoice.save();
+    res.json(invoice);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.getInvoiceById = async (req, res) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id).populate({
+      path: 'booking',
+      populate: {
+        path: 'lorryReceipt',
+        model: 'LorryReceipt',
+      },
+    });
+
+    if (!invoice) {
+      return res.status(404).json({ msg: 'Invoice not found' });
+    }
+
+    res.json(invoice);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
 // A simple function to generate a unique invoice number
 const generateInvoiceNumber = async () => {
   const lastInvoice = await Invoice.findOne().sort({ date: -1 });
